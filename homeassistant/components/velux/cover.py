@@ -1,4 +1,6 @@
 """Support for Velux covers."""
+import asyncio
+
 from pyvlx import OpeningDevice, Position
 from pyvlx.opening_device import Awning, Blind, GarageDoor, Gate, RollerShutter, Window
 
@@ -17,12 +19,23 @@ from homeassistant.components.cover import (
     CoverEntity,
 )
 from homeassistant.core import callback
+from homeassistant.exceptions import PlatformNotReady
 
 from . import DATA_VELUX
 
 
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
-    """Set up cover(s) for Velux platform."""
+    """Set up cover(s) for Velux component."""
+
+    if not hass.data[DATA_VELUX].setup_complete:
+        task = hass.data[DATA_VELUX].notify_setup()
+        try:
+            await asyncio.wait_for(task, timeout=9)
+            if not hass.data[DATA_VELUX].setup_complete:
+                raise PlatformNotReady
+        except asyncio.TimeoutError:
+            raise PlatformNotReady
+
     entities = []
     for node in hass.data[DATA_VELUX].pyvlx.nodes:
         if isinstance(node, OpeningDevice):
@@ -60,6 +73,11 @@ class VeluxCover(CoverEntity):
     def name(self):
         """Return the name of the Velux device."""
         return self.node.name
+
+    @property
+    def available(self):
+        """Return the availability of the Velux device."""
+        return self.hass.data[DATA_VELUX].pyvlx.connection.connected
 
     @property
     def should_poll(self):

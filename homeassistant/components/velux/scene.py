@@ -1,13 +1,26 @@
 """Support for VELUX scenes."""
+import asyncio
+
 from typing import Any
 
 from homeassistant.components.scene import Scene
+from homeassistant.exceptions import PlatformNotReady
 
 from . import _LOGGER, DATA_VELUX
 
 
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
-    """Set up the scenes for Velux platform."""
+    """Set up scenes for Velux platform."""
+
+    if not hass.data[DATA_VELUX].setup_complete:
+        task = hass.data[DATA_VELUX].notify_setup()
+        try:
+            await asyncio.wait_for(task, timeout=9)
+            if not hass.data[DATA_VELUX].setup_complete:
+                raise PlatformNotReady
+        except asyncio.TimeoutError:
+            raise PlatformNotReady
+
     entities = [VeluxScene(scene) for scene in hass.data[DATA_VELUX].pyvlx.scenes]
     async_add_entities(entities)
 
