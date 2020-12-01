@@ -85,7 +85,6 @@ class VeluxModule:
         """Try to connect to KLF-200."""
 
         try:
-            self.starting = True
             await self.pyvlx.load_scenes()
             await self.pyvlx.load_nodes()
             self.setup_complete = True
@@ -102,6 +101,7 @@ class VeluxModule:
             raise Exception("Setup of velux component requested after shutdown notified")
 
         if not self.starting:
+            self.starting = True
             self.start_task = asyncio.create_task(self.async_start())
 
         return self.start_task
