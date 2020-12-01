@@ -76,7 +76,7 @@ class VeluxCover(CoverEntity):
         """Flag supported features."""
         features = SUPPORT_OPEN | SUPPORT_CLOSE | SUPPORT_SET_POSITION | SUPPORT_STOP
         if self.supports_orientation():
-            features = features | SUPPORT_SET_TILT_POSITION
+            features = features | SUPPORT_SET_TILT_POSITION | SUPPORT_OPEN_TILT | SUPPORT_CLOSE_TILT | SUPPORT_STOP_TILT
         return features
 
     @property
