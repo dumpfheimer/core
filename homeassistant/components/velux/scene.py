@@ -15,7 +15,7 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     if not hass.data[DATA_VELUX].setup_complete:
         try:
             task = hass.data[DATA_VELUX].notify_setup()
-            await asyncio.wait_for(task, timeout=9)
+            await asyncio.wait_for(task, timeout=120)
             if not hass.data[DATA_VELUX].setup_complete:
                 raise PlatformNotReady
         except asyncio.TimeoutError:

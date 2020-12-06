@@ -85,6 +85,7 @@ class VeluxModule:
         """Try to connect to KLF-200."""
 
         try:
+            _LOGGER.info("Velux component connecting")
             await self.pyvlx.load_scenes()
             await self.pyvlx.load_nodes()
             self.setup_complete = True
